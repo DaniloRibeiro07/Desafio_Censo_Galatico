@@ -12,18 +12,31 @@ async function planetData() {
   }
 }
 
+async function consultResident(links){
+  console.log( (await (links.map(async (link) => {
+    const request = await fetch(link+"?format=json")
+    if(request.ok){
+      const jsonResponse = await request.json()
+      return(jsonResponse)
+    }else{
+      console.log (`Erro na requisição, código: ${request.status}`)
+      return (false)
+    }
+  }) )));
+}
+
 function listPlanet(planet) {
   const ul = document.createElement('ul')
 
-  ul.innerHTML= 
+  ul.innerHTML = 
     `
     <li>Nome: ${planet.name}</li>
     <li>Clima: ${planet.climate}</li>
     <li>População: ${planet.population}</li>
     <li>Terreno: ${planet.terrain}</li>
     `
-  
-    return ul
+  consultResident(planet.residents)
+  return ul
 }
 
 async function generatePlanetsButton (){
