@@ -4,8 +4,10 @@ async function planetData() {
 
   if(request.ok){
     const jsonResponse = (await request.json()).results
+    console.log(jsonResponse)
     return (jsonResponse)
   }else{
+    console.log (`Erro na requisição, código: ${request.status}`)
     return (false)
   }
 }
