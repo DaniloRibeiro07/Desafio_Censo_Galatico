@@ -12,6 +12,20 @@ async function planetData() {
   }
 }
 
+function listPlanet(planet) {
+  const ul = document.createElement('ul')
+
+  ul.innerHTML= 
+    `
+    <li>Nome: ${planet.name}</li>
+    <li>Clima: ${planet.climate}</li>
+    <li>População: ${planet.population}</li>
+    <li>Terreno: ${planet.terrain}</li>
+    `
+  
+    return ul
+}
+
 async function generatePlanetsButton (){
   const planets = await planetData()
   if (!planets) return;
@@ -25,16 +39,7 @@ async function generatePlanetsButton (){
 
     button.onclick = () => {
       if(div.innerHTML==""){
-        const ul = document.createElement('ul')
-
-        ul.innerHTML= 
-          `
-          <li>Nome: ${planet.name}</li>
-          <li>Clima: ${planet.climate}</li>
-          <li>População: ${planet.population}</li>
-          <li>Terreno: ${planet.terrain}</li>
-          `
-          
+        const ul = listPlanet(planet)
         div.append(ul)
       }else{
         div.innerHTML = ""
@@ -47,4 +52,20 @@ async function generatePlanetsButton (){
   });
 }
 
+async function searchPlanet(){
+  const planets = await planetData()
+  const planetToSearch = document.getElementById("searchInput").value.toUpperCase()
+  const divResultSearch = document.getElementById('resultSearch')
+
+  const resultSearch = (planets.find(planet => (planet.name.toUpperCase() == planetToSearch)))
+
+  divResultSearch.innerHTML = ""
+  if(resultSearch){
+    const ul = listPlanet(resultSearch)
+    divResultSearch.append(ul)
+  }
+  
+}
+
 generatePlanetsButton()
+
