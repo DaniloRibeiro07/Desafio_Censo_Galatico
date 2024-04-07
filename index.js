@@ -13,19 +13,44 @@ async function planetData() {
 }
 
 async function consultResident(links){
-  console.log( (await (links.map(async (link) => {
-    const request = await fetch(link+"?format=json")
-    if(request.ok){
-      const jsonResponse = await request.json()
-      return(jsonResponse)
-    }else{
-      console.log (`Erro na requisição, código: ${request.status}`)
-      return (false)
+  const list = document.createElement('dl')
+  list.innerHTML = "<dt>Habitantes Famosos:</dt>"
+
+  await new Promise((resolve, reject) => {
+    let counter = links.length
+
+    if(counter == 0 ){
+      const listComponent = document.createElement('dd')
+        listComponent.innerText = "Não Há"
+        list.appendChild(listComponent)
+        resolve()
     }
-  }) )));
+
+    links.forEach(async (link) => {
+      const request = await fetch(link+"?format=json")
+      if(request.ok){
+        const jsonResponse = await request.json()
+        const listComponent = document.createElement('dd')
+        listComponent.innerText = `${jsonResponse.name}, ${jsonResponse.birth_year}`
+        list.appendChild(listComponent)
+        counter--
+        if(counter == 0){
+          resolve()
+        }
+      }else{
+        console.log (`Erro na requisição, código: ${request.status}`)
+        resolve()
+        return (false)
+      }
+
+    });
+  })
+  
+  return list.outerHTML
+
 }
 
-function listPlanet(planet) {
+async function listPlanet(planet) {
   const ul = document.createElement('ul')
 
   ul.innerHTML = 
@@ -34,25 +59,26 @@ function listPlanet(planet) {
     <li>Clima: ${planet.climate}</li>
     <li>População: ${planet.population}</li>
     <li>Terreno: ${planet.terrain}</li>
+    <li>
+      ${await consultResident(planet.residents)}
+    </li>
     `
-  consultResident(planet.residents)
   return ul
 }
 
 async function generatePlanetsButton (){
   const planets = await planetData()
   if (!planets) return;
-
-  planets.forEach(planet => {
+  await planets.forEach(async (planet) => {
     const button = document.createElement('button')
     button.innerText = planet.name
     const div = document.createElement('div')
     const br = document.createElement('br')
     const br2 = document.createElement('br')
 
-    button.onclick = () => {
+    button.onclick = async () => {
       if(div.innerHTML==""){
-        const ul = listPlanet(planet)
+        const ul = await listPlanet(planet)
         div.append(ul)
       }else{
         div.innerHTML = ""
@@ -74,7 +100,7 @@ async function searchPlanet(){
 
   divResultSearch.innerHTML = ""
   if(resultSearch){
-    const ul = listPlanet(resultSearch)
+    const ul = await listPlanet(resultSearch)
     divResultSearch.append(ul)
   }
   
